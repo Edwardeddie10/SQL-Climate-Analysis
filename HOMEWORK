@@ -37,32 +37,20 @@ def Home():
     )
 
     """Convert the query results to a Dictionary using date as the key and prcp as the value."""
-
-    all_prcp =[]
-    for date in results:
-     prcp_dict = {}
-     prcp_dict["date"] = 2016-08-24
-     prcp_dict["date"] = 2016-08-24
-     prcp_dict["date"] = 2016-08-24
-     prcp_dict["date"] = 2016-08-24
-     prcp_dict["date"] = 2016-08-24 
-     all_prcp.append(passenger_dict)
-
-     return jsonify(all_prcp)
-
-
-    all_date =[]
-    for prcp in results:
-    date_dict["prcp"] = 0.08
-    date_dict["prcp"] = 2.15
-    date_dict["prcp"] = 2.28
-    date_dict["prcp"] = NaN
-    date_dict["prcp"] = 1.22
-
-    return jsonify(all_date)
+        @app.route("/api/v1.0/precipitation")
+        def precipitation():
+        scores_df = pd.DataFrame(scores)
+        return jasonify(scores_df)
+    
 
 
     """Return a JSON list of stations from the dataset"""
+        @app.route("/api/v1.0/stations")
+        def stations():
+         active_stations = session.query(Measurement.station, func.count(Measurement.tobs)).group_by(Measurement.station).\
+               order_by(func.count(Measurement.tobs).desc()).all()
+               return jasonify(active_stations)
+
         df = pd.read_sql[
         {"station" : "USC00519397", "date" : "2010-01-01", "prcp" : "0.08", "tobs" : "65.0"},
         {"station" : "USC00519397", "date" : "2010-01-02", "prcp" : "0.00", "tobs" : "63.0"},
@@ -73,8 +61,50 @@ def Home():
 
     
 
-   """query for the dates and temperature observations from a year from the last data point"""
-   
+   """query for the dates and temperature observations from a year from the last data point"""  
+        @app.route("/api/v1.0/tobs")
+        def tobs():
+            temperature = session.query(Measurement.station, Measurement.date, Measurement.tobs).\
+            filter(Measurement.station == most_active).\
+            filter(Measurement.date > one_year_ago).\
+            order_by(Measurement.date).all()
+            return jasonify(temperature)
+
+
+    """Return a JSON list of Temperature Observations (tobs) for the previous year"""
+        @app.route("/api/v1.0/tobs")
+        def tobs():
+             temperature = session.query(Measurement.station, Measurement.date, Measurement.tobs).\
+            filter(Measurement.station == most_active).\
+            filter(Measurement.date > one_year_ago).\
+            order_by(Measurement.date).all()
+            return jasonify(temperature)
+        
+
+    """Return a JSON list of the minimum temperature, the average temperature, and the max temperature for a given start or start-end range"""
+    """When given the start only, calculate TMIN, TAVG, and TMAX for all dates greater than and equal to the start date"""
+        @app.route ("/api/v1.0/<start>")
+        def <starts>():
+            active_station_temp = session.query(func.min(Measurement.tobs), func.avg(Measurement.tobs), func.max(Measurement.tobs)).\
+            filter(Measurement.station == "USC00519281").all()
+            return jasonify(active_station_temp)
+    
+        
+        
+       
+    
+    """Return a JSON list of the minimum temperature, the average temperature, and the max temperature for a given start or start-end range"""
+    """When given the start only, calculate TMIN, TAVG, and TMAX for all dates greater than and equal to the start date""
+        @app.route("/api/v1.0/<end>")
+        def <end>():
+            active_station_temp = session.query(func.min(Measurement.tobs), func.avg(Measurement.tobs), func.max(Measurement.tobs)).\
+            filter(Measurement.station == "USC00519281")>= start).filter(Measurement.date <= end).all()
+            return jasonify(active_station_temp)
+
+    if __name__ == '__main__':
+    app.run(debug=True)
+
+
     
 
 
